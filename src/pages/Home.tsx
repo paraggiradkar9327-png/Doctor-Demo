@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import type { Hospital, Doctor } from "@/lib/types";
+import type { Doctor } from "@/lib/types";
 import {
   HeartPulse,
   Stethoscope,
@@ -15,18 +15,21 @@ import {
   Users,
 } from "lucide-react";
 
+// Hardcoded hospital info (no longer editable from admin)
+const HOSPITAL_NAME = "MediCare General Hospital";
+const HOSPITAL_TAGLINE =
+  "Compassionate care. Advanced medicine. Trusted by thousands.";
+
 export default function Home() {
-  const [hospital, setHospital] = useState<Hospital | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const [{ data: hospData }, { data: docData }] = await Promise.all([
-        supabase.from("hospitals").select("*").maybeSingle(),
-        supabase.from("doctors").select("*").limit(4),
-      ]);
-      setHospital(hospData);
+      const { data: docData } = await supabase
+        .from("doctors")
+        .select("*")
+        .limit(4);
       setDoctors(docData ?? []);
       setLoading(false);
     })();
@@ -66,19 +69,7 @@ export default function Home() {
     <div>
       {/* Hero Section */}
       <section className="relative min-h-150 flex items-center overflow-hidden">
-        {hospital?.photo_url && (
-          <div className="absolute inset-0">
-            <img
-              src={hospital.photo_url}
-              alt={hospital.name}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-linear-to-r from-teal-900/90 via-teal-800/80 to-cyan-800/70" />
-          </div>
-        )}
-        {!hospital?.photo_url && (
-          <div className="absolute inset-0 bg-linear-to-br from-teal-700 via-cyan-700 to-teal-900" />
-        )}
+        <div className="absolute inset-0 bg-linear-to-br from-teal-700 via-cyan-700 to-teal-900" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-2xl">
@@ -89,11 +80,10 @@ export default function Home() {
               </span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              {hospital?.name || "MediCare General Hospital"}
+              {HOSPITAL_NAME}
             </h1>
             <p className="text-lg text-teal-50 mb-8 leading-relaxed max-w-xl">
-              {hospital?.description ||
-                "Compassionate care. Advanced medicine. Trusted by thousands."}
+              {HOSPITAL_TAGLINE}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -113,7 +103,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Wave divider */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg
             viewBox="0 0 1440 100"
@@ -139,10 +128,10 @@ export default function Home() {
                   <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal-50 mb-3 group-hover:bg-teal-100 transition-colors duration-200">
                     <Icon className="w-7 h-7 text-teal-600" />
                   </div>
-                  <div className="text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
                 </div>
               );
             })}
@@ -150,38 +139,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-teal-600 font-semibold text-sm uppercase tracking-wider">
-              Our Services
+              What We Offer
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4">
-              Comprehensive Medical Care
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2">
+              Our Medical Services
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              We offer a wide range of medical services to meet all your
-              healthcare needs under one roof.
-            </p>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, i) => {
-              const Icon = service.icon;
+            {services.map((s, i) => {
+              const Icon = s.icon;
               return (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100"
                 >
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-teal-500 to-cyan-600 mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 mb-4">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {service.title}
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    {s.title}
                   </h3>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {service.desc}
+                    {s.desc}
                   </p>
                 </div>
               );
@@ -190,7 +174,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Doctors Preview */}
+      {/* Doctors preview */}
       {!loading && doctors.length > 0 && (
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -236,7 +220,7 @@ export default function Home() {
                       {doctor.name}
                     </h3>
                     <p className="text-sm text-teal-600 mt-1">
-                      {doctor.specialization}
+                      {doctor.hospital_name}
                     </p>
                   </div>
                 </div>
@@ -249,21 +233,18 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 bg-linear-to-r from-teal-600 to-cyan-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm mb-6">
-            <CalendarCheck className="w-8 h-8 text-white" />
-          </div>
+          <CalendarCheck className="w-12 h-12 text-white mx-auto mb-4" />
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Ready to Take Care of Your Health?
+            Ready to Book Your Appointment?
           </h2>
-          <p className="text-teal-50 text-lg mb-8 max-w-2xl mx-auto">
-            Book an appointment today and experience world-class healthcare with
-            compassion.
+          <p className="text-teal-50 text-lg mb-8">
+            Our team is here to provide you with the best possible care.
           </p>
           <Link
             to="/contact"
             className="inline-flex items-center gap-2 bg-white text-teal-700 font-semibold px-8 py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
           >
-            Book an Appointment
+            Contact Us Today
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

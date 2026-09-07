@@ -12,13 +12,10 @@ export interface Hospital {
 
 export interface Doctor {
   id: string;
-  hospital_id: string | null;
   name: string;
   photo_url: string | null;
-  specialization: string | null;
-  bio: string | null;
-  experience: string | null;
-  education: string | null;
+  hospital_name: string | null;
+  hospital_photo_url: string | null;
   created_at: string;
 }
 

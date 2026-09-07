@@ -3,11 +3,10 @@ import { supabase } from "@/lib/supabase";
 import type { Doctor } from "@/lib/types";
 import {
   Stethoscope,
-  GraduationCap,
-  Briefcase,
   UserCircle,
   Mail,
   Phone,
+  Hospital,
   X,
 } from "lucide-react";
 
@@ -63,9 +62,9 @@ export default function Doctors() {
               {doctors.map((doctor) => (
                 <div
                   key={doctor.id}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+                  onClick={() => setSelectedDoctor(doctor)}
+                  className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
                 >
-                  {/* Photo */}
                   <div className="aspect-[3/4] overflow-hidden bg-gradient-to-br from-teal-50 to-cyan-50 relative">
                     {doctor.photo_url ? (
                       <img
@@ -78,44 +77,29 @@ export default function Doctors() {
                         <UserCircle className="w-20 h-20 text-teal-200" />
                       </div>
                     )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                      <span className="inline-block bg-teal-500/90 backdrop-blur-sm text-white text-xs font-medium px-3 py-1 rounded-full">
-                        {doctor.specialization || "Doctor"}
-                      </span>
-                    </div>
                   </div>
 
-                  {/* Info */}
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
                       {doctor.name}
                     </h3>
-                    <p className="text-teal-600 text-sm font-medium mb-3">
-                      {doctor.specialization || "Medical Professional"}
-                    </p>
-                    {doctor.bio && (
-                      <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3">
-                        {doctor.bio}
-                      </p>
+                    {doctor.hospital_name && (
+                      <div className="flex items-center gap-2 mb-4">
+                        {doctor.hospital_photo_url ? (
+                          <img
+                            src={doctor.hospital_photo_url}
+                            alt={doctor.hospital_name}
+                            className="w-6 h-6 rounded-full object-cover border border-gray-200"
+                          />
+                        ) : (
+                          <Hospital className="w-4 h-4 text-teal-500" />
+                        )}
+                        <span className="text-sm text-gray-600">
+                          {doctor.hospital_name}
+                        </span>
+                      </div>
                     )}
-                    <div className="space-y-2 mb-4">
-                      {doctor.experience && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Briefcase className="w-4 h-4 text-teal-500" />
-                          <span>{doctor.experience} experience</span>
-                        </div>
-                      )}
-                      {doctor.education && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <GraduationCap className="w-4 h-4 text-teal-500" />
-                          <span>{doctor.education}</span>
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setSelectedDoctor(doctor)}
-                      className="w-full py-2.5 rounded-xl bg-teal-50 text-teal-700 font-semibold text-sm hover:bg-teal-100 transition-colors duration-200"
-                    >
+                    <button className="w-full py-2.5 rounded-xl bg-teal-50 text-teal-700 font-semibold text-sm hover:bg-teal-100 transition-colors duration-200">
                       View Profile
                     </button>
                   </div>
@@ -158,50 +142,35 @@ export default function Doctors() {
                   )}
                 </div>
                 <div className="p-8">
-                  <span className="inline-block bg-teal-50 text-teal-700 text-xs font-medium px-3 py-1 rounded-full mb-3">
-                    {selectedDoctor.specialization || "Medical Professional"}
-                  </span>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
                     {selectedDoctor.name}
                   </h2>
-                  {selectedDoctor.bio && (
-                    <p className="text-gray-600 leading-relaxed mb-6">
-                      {selectedDoctor.bio}
-                    </p>
+
+                  {selectedDoctor.hospital_name && (
+                    <div className="flex items-center gap-3 mb-6 bg-teal-50 rounded-xl p-3">
+                      {selectedDoctor.hospital_photo_url ? (
+                        <img
+                          src={selectedDoctor.hospital_photo_url}
+                          alt={selectedDoctor.hospital_name}
+                          className="w-12 h-12 rounded-lg object-cover border border-white"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                          <Hospital className="w-6 h-6 text-teal-600" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-xs text-teal-600 uppercase tracking-wide font-medium">
+                          Hospital
+                        </p>
+                        <p className="text-sm text-gray-800 font-semibold">
+                          {selectedDoctor.hospital_name}
+                        </p>
+                      </div>
+                    </div>
                   )}
-                  <div className="space-y-3">
-                    {selectedDoctor.experience && (
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center">
-                          <Briefcase className="w-4 h-4 text-teal-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-400 uppercase tracking-wide">
-                            Experience
-                          </p>
-                          <p className="text-sm text-gray-700 font-medium">
-                            {selectedDoctor.experience}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    {selectedDoctor.education && (
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center">
-                          <GraduationCap className="w-4 h-4 text-teal-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-400 uppercase tracking-wide">
-                            Education
-                          </p>
-                          <p className="text-sm text-gray-700 font-medium">
-                            {selectedDoctor.education}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-6 pt-6 border-t border-gray-100 flex gap-3">
+
+                  <div className="pt-2 flex gap-3">
                     <a
                       href="/contact"
                       className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold py-2.5 rounded-xl text-sm hover:shadow-lg transition-all"

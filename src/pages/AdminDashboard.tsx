@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import type { Hospital, Doctor, ContactSubmission } from "@/lib/types";
+import type { Doctor, ContactSubmission } from "@/lib/types";
+import PhotoUpload from "@/components/PhotoUpload";
 import {
   LogOut,
   Building2,
@@ -15,32 +16,20 @@ import {
   User,
   Mail,
   Phone,
-  MapPin,
-  Image as ImageIcon,
-  Briefcase,
-  GraduationCap,
-  FileText,
-  CheckCircle,
-  AlertCircle,
+  Hospital,
   ChevronDown,
 } from "lucide-react";
 
-type Tab = "hospital" | "doctors" | "messages";
+type Tab = "doctors" | "messages";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<Tab>("hospital");
-  const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [selectedHospitalId, setSelectedHospitalId] = useState<string>("");
-  const [hospital, setHospital] = useState<Hospital | null>(null);
+  const [activeTab, setActiveTab] = useState<Tab>("doctors");
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saveStatus, setSaveStatus] = useState<
-    "idle" | "saving" | "success" | "error"
-  >("idle");
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
 
-  // Doctor modal state
   const [doctorModal, setDoctorModal] = useState<{
     open: boolean;
     doctor: Doctor | null;
@@ -54,32 +43,14 @@ export default function AdminDashboard() {
     return true;
   };
 
-  const loadHospitals = useCallback(async () => {
-    const { data } = await supabase.from("hospitals").select("*");
-    if (data && data.length > 0) {
-      setHospitals(data);
-      if (!selectedHospitalId) {
-        setSelectedHospitalId(data[0].id);
-      }
-    }
-    setLoading(false);
-  }, [selectedHospitalId]);
-
-  const loadHospitalData = useCallback(async () => {
-    if (!selectedHospitalId) return;
-    const { data: hospData } = await supabase
-      .from("hospitals")
-      .select("*")
-      .eq("id", selectedHospitalId)
-      .maybeSingle();
-    setHospital(hospData);
-
-    const { data: docData } = await supabase
+  const loadDoctors = useCallback(async () => {
+    const { data } = await supabase
       .from("doctors")
       .select("*")
-      .eq("hospital_id", selectedHospitalId);
-    setDoctors(docData ?? []);
-  }, [selectedHospitalId]);
+      .order("created_at", { ascending: false });
+    setDoctors(data ?? []);
+    setLoading(false);
+  }, []);
 
   const loadSubmissions = useCallback(async () => {
     const { data } = await supabase
@@ -91,14 +62,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!checkAuth()) return;
-    loadHospitals();
-  }, [loadHospitals]);
-
-  useEffect(() => {
-    if (selectedHospitalId) {
-      loadHospitalData();
-    }
-  }, [selectedHospitalId, loadHospitalData]);
+    loadDoctors();
+  }, [loadDoctors]);
 
   useEffect(() => {
     if (activeTab === "messages") {
@@ -111,29 +76,6 @@ export default function AdminDashboard() {
     navigate("/admin");
   };
 
-  const handleSaveHospital = async () => {
-    if (!hospital) return;
-    setSaveStatus("saving");
-    const { error } = await supabase
-      .from("hospitals")
-      .update({
-        name: hospital.name,
-        photo_url: hospital.photo_url,
-        description: hospital.description,
-        about: hospital.about,
-        address: hospital.address,
-        phone: hospital.phone,
-        email: hospital.email,
-      })
-      .eq("id", hospital.id);
-    if (error) {
-      setSaveStatus("error");
-    } else {
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 3000);
-    }
-  };
-
   const handleSaveDoctor = async (doctor: Partial<Doctor>) => {
     if (doctor.id) {
       const { error } = await supabase
@@ -141,32 +83,31 @@ export default function AdminDashboard() {
         .update({
           name: doctor.name,
           photo_url: doctor.photo_url,
-          specialization: doctor.specialization,
-          bio: doctor.bio,
-          experience: doctor.experience,
-          education: doctor.education,
+          hospital_name: doctor.hospital_name,
+          hospital_photo_url: doctor.hospital_photo_url,
         })
         .eq("id", doctor.id);
-      if (!error) loadHospitalData();
+      if (!error) loadDoctors();
     } else {
       const { error } = await supabase.from("doctors").insert({
-        hospital_id: selectedHospitalId || null,
         name: doctor.name,
         photo_url: doctor.photo_url,
-        specialization: doctor.specialization,
-        bio: doctor.bio,
-        experience: doctor.experience,
-        education: doctor.education,
+        hospital_name: doctor.hospital_name,
+        hospital_photo_url: doctor.hospital_photo_url,
       });
-      if (!error) loadHospitalData();
+      if (!error) loadDoctors();
     }
     setDoctorModal({ open: false, doctor: null });
+    setSelectedDoctorId("");
   };
 
   const handleDeleteDoctor = async (id: string) => {
     if (!confirm("Are you sure you want to delete this doctor?")) return;
     const { error } = await supabase.from("doctors").delete().eq("id", id);
-    if (!error) loadHospitalData();
+    if (!error) {
+      loadDoctors();
+      if (selectedDoctorId === id) setSelectedDoctorId("");
+    }
   };
 
   const handleDeleteSubmission = async (id: string) => {
@@ -177,6 +118,16 @@ export default function AdminDashboard() {
     if (!error) loadSubmissions();
   };
 
+  // Dropdown selection -> opens the edit modal pre-filled with that doctor's data
+  const handleSelectDoctorToEdit = (id: string) => {
+    setSelectedDoctorId(id);
+    if (!id) return;
+    const doc = doctors.find((d) => d.id === id);
+    if (doc) {
+      setDoctorModal({ open: true, doctor: doc });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -185,8 +136,7 @@ export default function AdminDashboard() {
     );
   }
 
-  const tabs: { id: Tab; label: string; icon: typeof Building2 }[] = [
-    { id: "hospital", label: "Hospital Info", icon: Building2 },
+  const tabs: { id: Tab; label: string; icon: typeof Stethoscope }[] = [
     { id: "doctors", label: "Doctors", icon: Stethoscope },
     { id: "messages", label: "Messages", icon: Inbox },
   ];
@@ -220,28 +170,6 @@ export default function AdminDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hospital selector */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Hospital
-          </label>
-          <div className="relative max-w-md">
-            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <select
-              value={selectedHospitalId}
-              onChange={(e) => setSelectedHospitalId(e.target.value)}
-              className="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all appearance-none bg-white text-gray-900 font-medium"
-            >
-              {hospitals.map((h) => (
-                <option key={h.id} value={h.id}>
-                  {h.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
-
         {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100 overflow-x-auto">
           {tabs.map((tab) => {
@@ -274,112 +202,43 @@ export default function AdminDashboard() {
           })}
         </div>
 
-        {/* Hospital Tab */}
-        {activeTab === "hospital" && hospital && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-teal-600" />
-                Edit Hospital Information
-              </h2>
-              {saveStatus === "success" && (
-                <span className="inline-flex items-center gap-1.5 text-sm text-green-600 font-medium">
-                  <CheckCircle className="w-4 h-4" />
-                  Saved!
-                </span>
-              )}
-              {saveStatus === "error" && (
-                <span className="inline-flex items-center gap-1.5 text-sm text-red-600 font-medium">
-                  <AlertCircle className="w-4 h-4" />
-                  Error saving
-                </span>
-              )}
-            </div>
-            <div className="p-6 space-y-5">
-              {/* Photo preview */}
-              {hospital.photo_url && (
-                <div className="mb-4">
-                  <img
-                    src={hospital.photo_url}
-                    alt={hospital.name}
-                    className="w-full h-48 object-cover rounded-xl border border-gray-200"
-                  />
-                </div>
-              )}
-
-              <FormField
-                icon={Building2}
-                label="Hospital Name"
-                value={hospital.name}
-                onChange={(v) => setHospital({ ...hospital, name: v })}
-              />
-              <FormField
-                icon={ImageIcon}
-                label="Hospital Photo URL"
-                value={hospital.photo_url ?? ""}
-                onChange={(v) => setHospital({ ...hospital, photo_url: v })}
-                placeholder="https://..."
-              />
-              <FormField
-                icon={FileText}
-                label="Short Description (Home page)"
-                value={hospital.description ?? ""}
-                onChange={(v) => setHospital({ ...hospital, description: v })}
-                textarea
-              />
-              <FormField
-                icon={FileText}
-                label="About Text (About Us page)"
-                value={hospital.about ?? ""}
-                onChange={(v) => setHospital({ ...hospital, about: v })}
-                textarea
-                rows={5}
-              />
-              <FormField
-                icon={MapPin}
-                label="Address"
-                value={hospital.address ?? ""}
-                onChange={(v) => setHospital({ ...hospital, address: v })}
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <FormField
-                  icon={Phone}
-                  label="Phone"
-                  value={hospital.phone ?? ""}
-                  onChange={(v) => setHospital({ ...hospital, phone: v })}
-                />
-                <FormField
-                  icon={Mail}
-                  label="Email"
-                  value={hospital.email ?? ""}
-                  onChange={(v) => setHospital({ ...hospital, email: v })}
-                />
-              </div>
-
-              <button
-                onClick={handleSaveHospital}
-                disabled={saveStatus === "saving"}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-60"
-              >
-                {saveStatus === "saving" ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    Save Changes
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Doctors Tab */}
         {activeTab === "doctors" && (
           <div>
+            {/* Select doctor to edit */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6 shadow-sm">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Doctor to Edit
+              </label>
+              <div className="relative max-w-md">
+                <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <select
+                  value={selectedDoctorId}
+                  onChange={(e) => handleSelectDoctorToEdit(e.target.value)}
+                  disabled={doctors.length === 0}
+                  className="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all appearance-none bg-white text-gray-900 font-medium disabled:bg-gray-50 disabled:text-gray-400"
+                >
+                  <option value="">
+                    {doctors.length === 0
+                      ? "No doctors yet"
+                      : "-- Choose a doctor --"}
+                  </option>
+                  {doctors.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                      {d.hospital_name ? ` — ${d.hospital_name}` : ""}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                Picking a doctor here opens their profile so you can update
+                their name, photo, hospital name, and hospital photo — changes
+                save straight to the website.
+              </p>
+            </div>
+
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                 <Stethoscope className="w-5 h-5 text-teal-600" />
@@ -406,7 +265,11 @@ export default function AdminDashboard() {
                 {doctors.map((doc) => (
                   <div
                     key={doc.id}
-                    className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all"
+                    className={`bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition-all ${
+                      selectedDoctorId === doc.id
+                        ? "border-teal-400 ring-2 ring-teal-100"
+                        : "border-gray-100"
+                    }`}
                   >
                     <div className="aspect-[3/2] overflow-hidden bg-gray-100">
                       {doc.photo_url ? (
@@ -425,14 +288,23 @@ export default function AdminDashboard() {
                       <h3 className="font-semibold text-gray-900">
                         {doc.name}
                       </h3>
-                      <p className="text-sm text-teal-600">
-                        {doc.specialization}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {doc.hospital_photo_url ? (
+                          <img
+                            src={doc.hospital_photo_url}
+                            alt={doc.hospital_name ?? ""}
+                            className="w-5 h-5 rounded-full object-cover border border-gray-200"
+                          />
+                        ) : (
+                          <Hospital className="w-4 h-4 text-teal-500" />
+                        )}
+                        <p className="text-sm text-teal-600">
+                          {doc.hospital_name || "—"}
+                        </p>
+                      </div>
                       <div className="flex gap-2 mt-3">
                         <button
-                          onClick={() =>
-                            setDoctorModal({ open: true, doctor: doc })
-                          }
+                          onClick={() => handleSelectDoctorToEdit(doc.id)}
                           className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-teal-700 bg-teal-50 py-2 rounded-lg hover:bg-teal-100 transition-colors"
                         >
                           <Pencil className="w-3.5 h-3.5" />
@@ -528,61 +400,17 @@ export default function AdminDashboard() {
         <DoctorModal
           doctor={doctorModal.doctor}
           onSave={handleSaveDoctor}
-          onClose={() => setDoctorModal({ open: false, doctor: null })}
+          onClose={() => {
+            setDoctorModal({ open: false, doctor: null });
+            setSelectedDoctorId("");
+          }}
         />
       )}
     </div>
   );
 }
 
-// --- Form Field Component ---
-function FormField({
-  icon: Icon,
-  label,
-  value,
-  onChange,
-  placeholder,
-  textarea,
-  rows = 3,
-}: {
-  icon: typeof User;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  textarea?: boolean;
-  rows?: number;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-        {label}
-      </label>
-      <div className="relative">
-        <Icon className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-        {textarea ? (
-          <textarea
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            rows={rows}
-            className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900 resize-none"
-          />
-        ) : (
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-// --- Doctor Modal ---
+// --- Doctor Modal: exactly 4 fields ---
 function DoctorModal({
   doctor,
   onSave,
@@ -595,57 +423,9 @@ function DoctorModal({
   const [form, setForm] = useState({
     name: doctor?.name ?? "",
     photo_url: doctor?.photo_url ?? "",
-    specialization: doctor?.specialization ?? "",
-    bio: doctor?.bio ?? "",
-    experience: doctor?.experience ?? "",
-    education: doctor?.education ?? "",
+    hospital_name: doctor?.hospital_name ?? "",
+    hospital_photo_url: doctor?.hospital_photo_url ?? "",
   });
-
-  const fields: {
-    key: keyof typeof form;
-    label: string;
-    icon: typeof User;
-    textarea?: boolean;
-    placeholder?: string;
-  }[] = [
-    {
-      key: "name",
-      label: "Doctor Name",
-      icon: User,
-      placeholder: "Dr. John Smith",
-    },
-    {
-      key: "photo_url",
-      label: "Photo URL",
-      icon: ImageIcon,
-      placeholder: "https://...",
-    },
-    {
-      key: "specialization",
-      label: "Specialization",
-      icon: Stethoscope,
-      placeholder: "Cardiologist",
-    },
-    {
-      key: "experience",
-      label: "Experience",
-      icon: Briefcase,
-      placeholder: "15+ years",
-    },
-    {
-      key: "education",
-      label: "Education",
-      icon: GraduationCap,
-      placeholder: "MD, Harvard",
-    },
-    {
-      key: "bio",
-      label: "Biography",
-      icon: FileText,
-      textarea: true,
-      placeholder: "About the doctor...",
-    },
-  ];
 
   return (
     <div
@@ -670,51 +450,53 @@ function DoctorModal({
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-6 space-y-4">
-          {form.photo_url && (
-            <div className="mb-2">
-              <img
-                src={form.photo_url}
-                alt="Preview"
-                className="w-24 h-24 rounded-xl object-cover border border-gray-200 mx-auto"
+        {/* Body — only 4 fields */}
+        <div className="p-6 space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Doctor Name
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Dr. John Smith"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
               />
             </div>
-          )}
-          {fields.map((f) => {
-            const Icon = f.icon;
-            return (
-              <div key={f.key}>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {f.label}
-                </label>
-                <div className="relative">
-                  <Icon className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  {f.textarea ? (
-                    <textarea
-                      value={form[f.key]}
-                      onChange={(e) =>
-                        setForm({ ...form, [f.key]: e.target.value })
-                      }
-                      placeholder={f.placeholder}
-                      rows={4}
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900 resize-none"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={form[f.key]}
-                      onChange={(e) =>
-                        setForm({ ...form, [f.key]: e.target.value })
-                      }
-                      placeholder={f.placeholder}
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
-                    />
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          </div>
+
+          <PhotoUpload
+            label="Doctor Photo"
+            value={form.photo_url}
+            onChange={(url) => setForm({ ...form, photo_url: url })}
+          />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Hospital Name
+            </label>
+            <div className="relative">
+              <Hospital className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={form.hospital_name}
+                onChange={(e) =>
+                  setForm({ ...form, hospital_name: e.target.value })
+                }
+                placeholder="MediCare General Hospital"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
+              />
+            </div>
+          </div>
+
+          <PhotoUpload
+            label="Hospital Photo"
+            value={form.hospital_photo_url}
+            onChange={(url) => setForm({ ...form, hospital_photo_url: url })}
+          />
         </div>
 
         {/* Footer */}

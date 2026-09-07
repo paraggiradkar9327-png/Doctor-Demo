@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import type { Hospital } from "@/lib/types";
 import {
   Heart,
   Target,
@@ -11,21 +8,17 @@ import {
   Stethoscope,
 } from "lucide-react";
 
+// Hardcoded hospital info
+const HOSPITAL = {
+  name: "MediCare General Hospital",
+  about:
+    "MediCare General Hospital has been a cornerstone of healthcare excellence for over 25 years. Our state-of-the-art facility brings together world-class medical professionals, cutting-edge technology, and a patient-first philosophy.",
+  address: "123 Wellness Avenue, Springfield",
+  phone: "+1 (555) 123-4567",
+  email: "contact@medicare-hospital.com",
+};
+
 export default function About() {
-  const [hospital, setHospital] = useState<Hospital | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("hospitals")
-        .select("*")
-        .maybeSingle();
-      setHospital(data);
-      setLoading(false);
-    })();
-  }, []);
-
   const values = [
     {
       icon: Heart,
@@ -85,8 +78,7 @@ export default function About() {
             About Us
           </h1>
           <p className="text-teal-50 text-lg max-w-2xl mx-auto">
-            {hospital?.name || "MediCare General Hospital"} — A legacy of
-            healing, a commitment to excellence.
+            {HOSPITAL.name} — A legacy of healing, a commitment to excellence.
           </p>
         </div>
       </section>
@@ -96,27 +88,14 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              {hospital?.photo_url && (
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
-                  <img
-                    src={hospital.photo_url}
-                    alt={hospital.name}
-                    className="w-full h-[450px] object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-teal-900/30 to-transparent" />
-                </div>
-              )}
-            </div>
-            <div>
               <span className="text-teal-600 font-semibold text-sm uppercase tracking-wider">
                 Our Story
               </span>
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-6">
-                {hospital?.name || "MediCare General Hospital"}
+                {HOSPITAL.name}
               </h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                {hospital?.about ||
-                  "MediCare General Hospital has been a cornerstone of healthcare excellence for over 25 years. Our state-of-the-art facility brings together world-class medical professionals, cutting-edge technology, and a patient-first philosophy."}
+                {HOSPITAL.about}
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -230,37 +209,27 @@ export default function About() {
       </section>
 
       {/* Contact info bar */}
-      {!loading &&
-        hospital &&
-        (hospital.address || hospital.phone || hospital.email) && (
-          <section className="py-12 bg-gradient-to-r from-teal-600 to-cyan-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                {hospital.address && (
-                  <div className="text-white">
-                    <Stethoscope className="w-8 h-8 mx-auto mb-2 opacity-80" />
-                    <p className="text-sm text-teal-50">Address</p>
-                    <p className="font-semibold">{hospital.address}</p>
-                  </div>
-                )}
-                {hospital.phone && (
-                  <div className="text-white">
-                    <ShieldCheck className="w-8 h-8 mx-auto mb-2 opacity-80" />
-                    <p className="text-sm text-teal-50">Phone</p>
-                    <p className="font-semibold">{hospital.phone}</p>
-                  </div>
-                )}
-                {hospital.email && (
-                  <div className="text-white">
-                    <Award className="w-8 h-8 mx-auto mb-2 opacity-80" />
-                    <p className="text-sm text-teal-50">Email</p>
-                    <p className="font-semibold">{hospital.email}</p>
-                  </div>
-                )}
-              </div>
+      <section className="py-12 bg-gradient-to-r from-teal-600 to-cyan-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="text-white">
+              <Stethoscope className="w-8 h-8 mx-auto mb-2 opacity-80" />
+              <p className="text-sm text-teal-50">Address</p>
+              <p className="font-semibold">{HOSPITAL.address}</p>
             </div>
-          </section>
-        )}
+            <div className="text-white">
+              <ShieldCheck className="w-8 h-8 mx-auto mb-2 opacity-80" />
+              <p className="text-sm text-teal-50">Phone</p>
+              <p className="font-semibold">{HOSPITAL.phone}</p>
+            </div>
+            <div className="text-white">
+              <Award className="w-8 h-8 mx-auto mb-2 opacity-80" />
+              <p className="text-sm text-teal-50">Email</p>
+              <p className="font-semibold">{HOSPITAL.email}</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
