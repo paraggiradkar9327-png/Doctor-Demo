@@ -116,12 +116,7 @@ export default function Home() {
                 </p>
               </div>
             )}
-            <p
-              className="text-lg text-teal-50 mb-8 leading-relaxed max-w-xl animate-fade-in-up drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
-              style={{ animationDelay: "0.4s" }}
-            >
-              Compassionate care. Advanced medicine. Trusted by thousands.
-            </p>
+
             <div
               className="flex justify-center animate-fade-in-up"
               style={{ animationDelay: "0.55s" }}
