@@ -74,7 +74,7 @@ export default function PhotoUpload({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
-        className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 min-h-[120px] cursor-pointer transition-colors ${
+        className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 min-h-30 cursor-pointer transition-colors ${
           dragging
             ? "border-teal-500 bg-teal-50"
             : "border-gray-200 hover:border-teal-300 bg-gray-50"

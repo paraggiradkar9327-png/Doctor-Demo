@@ -1,11 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Menu, X, HeartPulse } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Doctor, SiteSettings } from "@/lib/types";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const [featuredDoctor, setFeaturedDoctor] = useState<Doctor | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -16,6 +19,25 @@ export default function Navbar() {
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    (async () => {
+      const { data: settings } = await supabase
+        .from("site_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle<SiteSettings>();
+
+      if (settings?.featured_doctor_id) {
+        const { data: doctor } = await supabase
+          .from("doctors")
+          .select("*")
+          .eq("id", settings.featured_doctor_id)
+          .maybeSingle<Doctor>();
+        setFeaturedDoctor(doctor ?? null);
+      }
+    })();
+  }, []);
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -35,12 +57,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="bg-gradient-to-br from-teal-500 to-cyan-600 p-2 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-linear-to-br from-teal-500 to-cyan-600 p-2 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300">
               <HeartPulse className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-teal-700 to-cyan-700 bg-clip-text text-transparent">
-              MediCare
-            </span>
+            {featuredDoctor && (
+              <span className="text-xl font-bold bg-linear-to-r from-teal-700 to-cyan-700 bg-clip-text text-transparent">
+                {featuredDoctor.hospital_name}
+              </span>
+            )}
           </Link>
 
           {/* Desktop nav */}
@@ -66,7 +90,7 @@ export default function Navbar() {
             })}
             <Link
               to="/admin"
-              className="ml-2 px-5 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+              className="ml-2 px-5 py-2 rounded-lg text-sm font-semibold bg-linear-to-r from-teal-500 to-cyan-600 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
             >
               Admin
             </Link>
@@ -103,7 +127,7 @@ export default function Navbar() {
             })}
             <Link
               to="/admin"
-              className="block px-4 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-center mt-2"
+              className="block px-4 py-2.5 rounded-lg text-sm font-semibold bg-linear-to-r from-teal-500 to-cyan-600 text-white text-center mt-2"
             >
               Admin Panel
             </Link>

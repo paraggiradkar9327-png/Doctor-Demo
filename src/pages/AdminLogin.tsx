@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@hospital.com");
+  const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export default function AdminLogin() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isAdminCredentials(email, password)) {
-      sessionStorage.setItem("admin_auth", "true");
+      localStorage.setItem("admin_auth", "true");
       navigate("/admin/dashboard");
     } else {
       setError("Invalid email or password. Please try again.");
@@ -29,7 +29,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-700 via-cyan-700 to-teal-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-teal-700 via-cyan-700 to-teal-900 p-4">
       {/* Decorative blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
@@ -47,7 +47,7 @@ export default function AdminLogin() {
 
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-teal-600 to-cyan-700 px-8 py-8 text-center">
+          <div className="bg-linear-to-r from-teal-600 to-cyan-700 px-8 py-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm mb-4">
               <HeartPulse className="w-8 h-8 text-white" />
             </div>
@@ -61,7 +61,7 @@ export default function AdminLogin() {
           <form onSubmit={handleSubmit} className="p-8 space-y-5">
             {error && (
               <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
                 <p className="text-sm text-red-700 font-medium">{error}</p>
               </div>
             )}
@@ -113,7 +113,7 @@ export default function AdminLogin() {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
+              className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
             >
               Sign In
             </button>

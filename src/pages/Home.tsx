@@ -15,26 +15,13 @@ import {
   Users,
 } from "lucide-react";
 
+import type { SiteSettings } from "@/lib/types";
+
 // Hardcoded hospital info (no longer editable from admin)
-const HOSPITAL_NAME = "MediCare General Hospital";
-const HOSPITAL_TAGLINE =
-  "Compassionate care. Advanced medicine. Trusted by thousands.";
+("Compassionate care. Advanced medicine. Trusted by thousands.");
 
 export default function Home() {
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      const { data: docData } = await supabase
-        .from("doctors")
-        .select("*")
-        .limit(4);
-      setDoctors(docData ?? []);
-      setLoading(false);
-    })();
-  }, []);
-
+  const [featuredDoctor, setFeaturedDoctor] = useState<Doctor | null>(null);
   const services = [
     {
       icon: HeartPulse,
@@ -65,11 +52,41 @@ export default function Home() {
     { icon: Clock, value: "24/7", label: "Emergency Service" },
   ];
 
+  useEffect(() => {
+    (async () => {
+      const { data: settings } = await supabase
+        .from("site_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle<SiteSettings>();
+
+      if (settings?.featured_doctor_id) {
+        const { data: doctor } = await supabase
+          .from("doctors")
+          .select("*")
+          .eq("id", settings.featured_doctor_id)
+          .maybeSingle<Doctor>();
+        setFeaturedDoctor(doctor ?? null);
+      }
+    })();
+  }, []);
+
   return (
     <div>
       {/* Hero Section */}
+
       <section className="relative min-h-150 flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-teal-700 via-cyan-700 to-teal-900" />
+        {featuredDoctor && (
+          <div className="mb-8">
+            <div className="absolute inset-0 bg-linear-to-br from-teal-700 via-cyan-700 to-teal-900" />
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${featuredDoctor.hospital_photo_url})`,
+              }}
+            />
+          </div>
+        )}
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-2xl">
@@ -79,11 +96,15 @@ export default function Home() {
                 Rated #1 Hospital in the Region
               </span>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              {HOSPITAL_NAME}
-            </h1>
+            {featuredDoctor && (
+              <div className="mb-8">
+                <p className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                  {featuredDoctor.hospital_name}
+                </p>
+              </div>
+            )}
             <p className="text-lg text-teal-50 mb-8 leading-relaxed max-w-xl">
-              {HOSPITAL_TAGLINE}
+              Compassionate care. Advanced medicine. Trusted by thousands.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -158,7 +179,7 @@ export default function Home() {
                   key={i}
                   className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100"
                 >
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-teal-500 to-cyan-600 mb-4">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2">
@@ -173,62 +194,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Doctors preview */}
-      {!loading && doctors.length > 0 && (
-        <section className="py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10">
-              <div>
-                <span className="text-teal-600 font-semibold text-sm uppercase tracking-wider">
-                  Meet the Team
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2">
-                  Our Expert Doctors
-                </h2>
-              </div>
-              <Link
-                to="/doctors"
-                className="inline-flex items-center gap-2 text-teal-600 font-semibold hover:gap-3 transition-all mt-4 sm:mt-0"
-              >
-                View All Doctors
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {doctors.map((doctor) => (
-                <div
-                  key={doctor.id}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
-                >
-                  <div className="aspect-3/4 overflow-hidden bg-gray-100">
-                    {doctor.photo_url ? (
-                      <img
-                        src={doctor.photo_url}
-                        alt={doctor.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-teal-50">
-                        <Stethoscope className="w-12 h-12 text-teal-300" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-5 text-center">
-                    <h3 className="font-semibold text-gray-900">
-                      {doctor.name}
-                    </h3>
-                    <p className="text-sm text-teal-600 mt-1">
-                      {doctor.hospital_name}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* CTA Section */}
       <section className="py-20 bg-linear-to-r from-teal-600 to-cyan-700">

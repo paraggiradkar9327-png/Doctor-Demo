@@ -16,7 +16,15 @@ export interface Doctor {
   photo_url: string | null;
   hospital_name: string | null;
   hospital_photo_url: string | null;
+  about: string | null;
   created_at: string;
+}
+
+export interface SiteSettings {
+  id: string;
+  hospital_photo_url: string | null;
+  featured_doctor_id: string | null;
+  updated_at: string;
 }
 
 export interface ContactSubmission {

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import type { Doctor, ContactSubmission } from "@/lib/types";
+import type { Doctor, ContactSubmission, SiteSettings } from "@/lib/types";
 import PhotoUpload from "@/components/PhotoUpload";
 import {
   LogOut,
@@ -29,6 +29,12 @@ export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
+  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
+  const [settingsForm, setSettingsForm] = useState({
+    hospital_photo_url: "",
+    featured_doctor_id: "",
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const [doctorModal, setDoctorModal] = useState<{
     open: boolean;
@@ -36,11 +42,44 @@ export default function AdminDashboard() {
   }>({ open: false, doctor: null });
 
   const checkAuth = () => {
-    if (sessionStorage.getItem("admin_auth") !== "true") {
+    if (localStorage.getItem("admin_auth") !== "true") {
       navigate("/admin");
       return false;
     }
     return true;
+  };
+
+  const loadSiteSettings = useCallback(async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      setSiteSettings(data);
+      setSettingsForm({
+        hospital_photo_url: data.hospital_photo_url ?? "",
+        featured_doctor_id: data.featured_doctor_id ?? "",
+      });
+    }
+  }, []);
+
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    const payload = {
+      hospital_photo_url: settingsForm.hospital_photo_url || null,
+      featured_doctor_id: settingsForm.featured_doctor_id || null,
+    };
+    if (siteSettings?.id) {
+      await supabase
+        .from("site_settings")
+        .update(payload)
+        .eq("id", siteSettings.id);
+    } else {
+      await supabase.from("site_settings").insert(payload);
+    }
+    await loadSiteSettings();
+    setSavingSettings(false);
   };
 
   const loadDoctors = useCallback(async () => {
@@ -63,7 +102,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!checkAuth()) return;
     loadDoctors();
-  }, [loadDoctors]);
+    loadSiteSettings();
+  }, [loadDoctors, loadSiteSettings]);
 
   useEffect(() => {
     if (activeTab === "messages") {
@@ -72,7 +112,7 @@ export default function AdminDashboard() {
   }, [activeTab, loadSubmissions]);
 
   const handleLogout = () => {
-    sessionStorage.removeItem("admin_auth");
+    localStorage.setItem("admin_auth", "true");
     navigate("/admin");
   };
 
@@ -148,7 +188,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-teal-500 to-cyan-600 p-2 rounded-xl">
+              <div className="bg-linear-to-br from-teal-500 to-cyan-600 p-2 rounded-xl">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -158,13 +198,24 @@ export default function AdminDashboard() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors px-4 py-2 rounded-lg hover:bg-red-50"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            <div className="flex items-center gap-3">
+              {/* Live Website Button */}
+              <button
+                onClick={() => window.open("/", "_blank")}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition"
+              >
+                🌐 Live Website
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors px-4 py-2 rounded-lg hover:bg-red-50"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -180,7 +231,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
-                    ? "bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-md"
+                    ? "bg-linear-to-r from-teal-500 to-cyan-600 text-white shadow-md"
                     : "text-gray-600 hover:bg-gray-50"
                 }`}
               >
@@ -200,6 +251,49 @@ export default function AdminDashboard() {
               </button>
             );
           })}
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6 shadow-sm">
+          <h2 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+            <Building2 className="w-5 h-5 text-teal-600" />
+            Page Settings
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Featured Doctor
+              </label>
+              <div className="relative">
+                <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <select
+                  value={settingsForm.featured_doctor_id}
+                  onChange={(e) =>
+                    setSettingsForm((f) => ({
+                      ...f,
+                      featured_doctor_id: e.target.value,
+                    }))
+                  }
+                  className="w-full pl-11 pr-9 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900 bg-white appearance-none"
+                >
+                  <option value="">— None —</option>
+                  {doctors.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={handleSaveSettings}
+            disabled={savingSettings}
+            className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-linear-to-r from-teal-500 to-cyan-600 text-white font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+          >
+            <Save className="w-4 h-4" />
+            {savingSettings ? "Saving..." : "Save About Page Settings"}
+          </button>
         </div>
 
         {/* Doctors Tab */}
@@ -246,7 +340,7 @@ export default function AdminDashboard() {
               </h2>
               <button
                 onClick={() => setDoctorModal({ open: true, doctor: null })}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+                className="inline-flex items-center gap-2 bg-linear-to-r from-teal-500 to-cyan-600 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
               >
                 <Plus className="w-4 h-4" />
                 Add Doctor
@@ -271,7 +365,7 @@ export default function AdminDashboard() {
                         : "border-gray-100"
                     }`}
                   >
-                    <div className="aspect-[3/2] overflow-hidden bg-gray-100">
+                    <div className="aspect-3/2 overflow-hidden bg-gray-100">
                       {doc.photo_url ? (
                         <img
                           src={doc.photo_url}
@@ -382,7 +476,7 @@ export default function AdminDashboard() {
                       </div>
                       <button
                         onClick={() => handleDeleteSubmission(sub.id)}
-                        className="flex-shrink-0 inline-flex items-center justify-center text-red-600 bg-red-50 p-2 rounded-lg hover:bg-red-100 transition-colors"
+                        className="shrink-0 inline-flex items-center justify-center text-red-600 bg-red-50 p-2 rounded-lg hover:bg-red-100 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -437,7 +531,7 @@ function DoctorModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-teal-600 to-cyan-700 px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-linear-to-r from-teal-600 to-cyan-700 px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <Stethoscope className="w-5 h-5" />
             {doctor ? "Edit Doctor" : "Add New Doctor"}
@@ -510,7 +604,7 @@ function DoctorModal({
           <button
             onClick={() => onSave({ ...form, id: doctor?.id })}
             disabled={!form.name}
-            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-linear-to-r from-teal-500 to-cyan-600 text-white font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {doctor ? "Update" : "Add Doctor"}
