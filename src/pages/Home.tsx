@@ -106,7 +106,7 @@ export default function Home() {
             <p className="text-lg text-teal-50 mb-8 leading-relaxed max-w-xl">
               Compassionate care. Advanced medicine. Trusted by thousands.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex justify-center">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 bg-white text-teal-700 font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
@@ -114,25 +114,20 @@ export default function Home() {
                 Book Appointment
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link
-                to="/doctors"
-                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/20 transition-all duration-200"
-              >
-                Meet Our Doctors
-              </Link>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 border-white">
+        <div className="absolute bottom-0 left-0 right-0">
           <svg
             viewBox="0 0 1440 100"
-            className="w-full h-auto"
+            className="block w-full h-auto"
             preserveAspectRatio="none"
           >
             <path
-              d="M0,100 C480,0 960,0 1440,100 L1440,100 L0,100 Z"
+              d="M0,102 C480,0 960,0 1440,102 L1440,102 L0,102 Z"
               fill="white"
+              stroke="none"
             />
           </svg>
         </div>
