@@ -44,10 +44,10 @@ export default function Contact() {
     {
       icon: MapPin,
       title: "Visit Us",
-      value: "123 Healthcare Ave, Medical City",
+      value: "Nagpur, Maharashtra, India",
     },
-    { icon: Phone, title: "Call Us", value: "+1 (555) 123-4567" },
-    { icon: Mail, title: "Email Us", value: "info@medicare.com" },
+    { icon: Phone, title: "Call Us", value: "123-456-7890" },
+    { icon: Mail, title: "Email Us", value: "contact@medicare.com" },
     {
       icon: Clock,
       title: "Open Hours",
@@ -164,7 +164,7 @@ export default function Contact() {
                     onChange={(e) =>
                       setForm({ ...form, phone: e.target.value })
                     }
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+91 123-456-7890"
                     className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
                   />
                 </div>

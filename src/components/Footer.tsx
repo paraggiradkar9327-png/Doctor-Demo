@@ -101,16 +101,16 @@ export default function Footer() {
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-teal-400 mt-0.5 shrink-0" />
                 <span className="text-gray-400">
-                  123 Healthcare Ave, Medical City
+                  Nagpur, Maharashtra, India
                 </span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-teal-400 shrink-0" />
-                <span className="text-gray-400">+1 (555) 123-4567</span>
+                <span className="text-gray-400">+91 123-456-7890</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-teal-400 shrink-0" />
-                <span className="text-gray-400">info@medicare.com</span>
+                <span className="text-gray-400">contact@medicare.com</span>
               </li>
             </ul>
           </div>
