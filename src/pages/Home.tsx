@@ -102,14 +102,14 @@ export default function Home() {
               style={{ animationDelay: "0.1s" }}
             >
               <Star className="w-4 h-4 text-yellow-300" />
-              <span className="text-white text-sm font-medium">
+              <span className="text-white text-sm font-medium drop-shadow-[0_2px_12px_rgba(0,0,0,0.72)]">
                 Rated #1 Hospital in the Region
               </span>
             </div>
             {featuredDoctor && (
               <div className="mb-8">
                 <p
-                  className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 animate-fade-in-up"
+                  className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 animate-fade-in-up drop-shadow-[0_2px_12px_rgba(0,0,0,0.72)]"
                   style={{ animationDelay: "0.25s" }}
                 >
                   {featuredDoctor.hospital_name}
@@ -117,7 +117,7 @@ export default function Home() {
               </div>
             )}
             <p
-              className="text-lg text-teal-50 mb-8 leading-relaxed max-w-xl animate-fade-in-up"
+              className="text-lg text-teal-50 mb-8 leading-relaxed max-w-xl animate-fade-in-up drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
               style={{ animationDelay: "0.4s" }}
             >
               Compassionate care. Advanced medicine. Trusted by thousands.
