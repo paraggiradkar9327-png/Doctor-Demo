@@ -32,23 +32,26 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-teal-700 via-cyan-700 to-teal-900 p-4">
       {/* Decorative blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-cyan-300/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" />
+        <div
+          className="absolute bottom-20 right-20 w-80 h-80 bg-cyan-300/10 rounded-full blur-3xl animate-float"
+          style={{ animationDelay: "1.5s" }}
+        />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md animate-fade-in-up">
         <button
           onClick={() => navigate("/")}
-          className="inline-flex items-center gap-2 text-teal-50 hover:text-white text-sm mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-teal-50 hover:text-white hover:-translate-x-1 text-sm mb-6 transition-all duration-200"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </button>
 
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-in">
           {/* Header */}
           <div className="bg-linear-to-r from-teal-600 to-cyan-700 px-8 py-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm mb-4 animate-float">
               <HeartPulse className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
@@ -60,7 +63,7 @@ export default function AdminLogin() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-8 space-y-5">
             {error && (
-              <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4 animate-fade-in-down">
                 <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
                 <p className="text-sm text-red-700 font-medium">{error}</p>
               </div>
@@ -78,7 +81,7 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@hospital.com"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all duration-200 text-gray-900"
                 />
               </div>
             </div>
@@ -95,7 +98,7 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full pl-11 pr-11 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
+                  className="w-full pl-11 pr-11 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all duration-200 text-gray-900"
                 />
                 <button
                   type="button"

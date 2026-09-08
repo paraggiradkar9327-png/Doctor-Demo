@@ -1,9 +1,9 @@
 import { Target, Eye } from "lucide-react";
-
 import { useEffect, useState } from "react";
 import type { Doctor, SiteSettings } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import InfoSection from "@/components/InfoSection";
+import Reveal from "@/components/Reveal";
 
 export default function About() {
   const [featuredDoctor, setFeaturedDoctor] = useState<Doctor | null>(null);
@@ -32,15 +32,21 @@ export default function About() {
       {/* Hero */}
       <section className="relative py-24 bg-linear-to-br from-teal-700 via-cyan-700 to-teal-800 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-80 h-80 bg-white rounded-full blur-3xl" />
+          <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl animate-float" />
+          <div
+            className="absolute bottom-10 right-10 w-80 h-80 bg-white rounded-full blur-3xl animate-float"
+            style={{ animationDelay: "1.2s" }}
+          />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 animate-fade-in-up">
             About Us
           </h1>
           {featuredDoctor && (
-            <p className="text-teal-50 text-lg max-w-2xl mx-auto">
+            <p
+              className="text-teal-50 text-lg max-w-2xl mx-auto animate-fade-in-up"
+              style={{ animationDelay: "0.15s" }}
+            >
               {featuredDoctor.hospital_name} — A legacy of healing, a commitment
               to excellence.
             </p>
@@ -52,7 +58,7 @@ export default function About() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="mb-1">
+            <Reveal className="mb-1">
               <span className="text-teal-600 font-semibold text-sm uppercase tracking-wider">
                 Our Story
               </span>
@@ -94,16 +100,16 @@ export default function About() {
                   </div>
                 </div>
               </div>
-            </div>
-            <div>
+            </Reveal>
+            <Reveal delay={150}>
               {featuredDoctor?.hospital_photo_url && (
                 <img
                   src={featuredDoctor.hospital_photo_url}
                   alt="About Us"
-                  className="rounded-2xl shadow-lg h-120 w-lg object-cover"
+                  className="rounded-2xl shadow-lg h-120 w-lg object-cover transition-transform duration-500 hover:scale-[1.02]"
                 />
               )}
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>

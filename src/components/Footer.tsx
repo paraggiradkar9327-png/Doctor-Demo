@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Doctor, SiteSettings } from "@/lib/types";
+import Reveal from "@/components/Reveal";
 
 export default function Footer() {
   const [featuredDoctor, setFeaturedDoctor] = useState<Doctor | null>(null);
@@ -34,7 +35,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-2">
@@ -59,7 +60,7 @@ export default function Footer() {
                   <a
                     key={i}
                     href="#"
-                    className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-colors duration-200"
+                    className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-teal-600 hover:scale-110 hover:-translate-y-0.5 transition-all duration-200"
                   >
                     <Icon className="w-4 h-4" />
                   </a>
@@ -83,7 +84,7 @@ export default function Footer() {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-teal-400 hover:translate-x-1 inline-block transition-all duration-200"
                   >
                     {link.name}
                   </Link>
@@ -121,7 +122,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} MediCare. All rights reserved.
           </p>
         </div>
-      </div>
+      </Reveal>
     </footer>
   );
 }

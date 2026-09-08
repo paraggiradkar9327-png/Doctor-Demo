@@ -19,6 +19,7 @@ import {
   Hospital,
   ChevronDown,
 } from "lucide-react";
+import Reveal from "@/components/Reveal";
 
 type Tab = "doctors" | "messages";
 
@@ -229,7 +230,7 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                   activeTab === tab.id
                     ? "bg-linear-to-r from-teal-500 to-cyan-600 text-white shadow-md"
                     : "text-gray-600 hover:bg-gray-50"
@@ -356,63 +357,65 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {doctors.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className={`bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition-all ${
-                      selectedDoctorId === doc.id
-                        ? "border-teal-400 ring-2 ring-teal-100"
-                        : "border-gray-100"
-                    }`}
-                  >
-                    <div className="aspect-3/2 overflow-hidden bg-gray-100">
-                      {doc.photo_url ? (
-                        <img
-                          src={doc.photo_url}
-                          alt={doc.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-teal-50">
-                          <User className="w-10 h-10 text-teal-200" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900">
-                        {doc.name}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        {doc.hospital_photo_url ? (
+                {doctors.map((doc, i) => (
+                  <Reveal key={doc.id} delay={i * 80}>
+                    <div
+                      key={doc.id}
+                      className={`bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 ${
+                        selectedDoctorId === doc.id
+                          ? "border-teal-400 ring-2 ring-teal-100"
+                          : "border-gray-100"
+                      }`}
+                    >
+                      <div className="aspect-3/2 overflow-hidden bg-gray-100">
+                        {doc.photo_url ? (
                           <img
-                            src={doc.hospital_photo_url}
-                            alt={doc.hospital_name ?? ""}
-                            className="w-5 h-5 rounded-full object-cover border border-gray-200"
+                            src={doc.photo_url}
+                            alt={doc.name}
+                            className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Hospital className="w-4 h-4 text-teal-500" />
+                          <div className="w-full h-full flex items-center justify-center bg-teal-50">
+                            <User className="w-10 h-10 text-teal-200" />
+                          </div>
                         )}
-                        <p className="text-sm text-teal-600">
-                          {doc.hospital_name || "—"}
-                        </p>
                       </div>
-                      <div className="flex gap-2 mt-3">
-                        <button
-                          onClick={() => handleSelectDoctorToEdit(doc.id)}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-teal-700 bg-teal-50 py-2 rounded-lg hover:bg-teal-100 transition-colors"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteDoctor(doc.id)}
-                          className="inline-flex items-center justify-center gap-1.5 text-sm font-medium text-red-600 bg-red-50 px-3 py-2 rounded-lg hover:bg-red-100 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900">
+                          {doc.name}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          {doc.hospital_photo_url ? (
+                            <img
+                              src={doc.hospital_photo_url}
+                              alt={doc.hospital_name ?? ""}
+                              className="w-5 h-5 rounded-full object-cover border border-gray-200"
+                            />
+                          ) : (
+                            <Hospital className="w-4 h-4 text-teal-500" />
+                          )}
+                          <p className="text-sm text-teal-600">
+                            {doc.hospital_name || "—"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={() => handleSelectDoctorToEdit(doc.id)}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-teal-700 bg-teal-50 py-2 rounded-lg hover:bg-teal-100 transition-colors"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDoctor(doc.id)}
+                            className="inline-flex items-center justify-center gap-1.5 text-sm font-medium text-red-600 bg-red-50 px-3 py-2 rounded-lg hover:bg-red-100 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
             )}
@@ -433,55 +436,57 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {submissions.map((sub) => (
-                  <div
-                    key={sub.id}
-                    className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <User className="w-4 h-4 text-teal-500" />
-                          <h3 className="font-semibold text-gray-900">
-                            {sub.name}
-                          </h3>
-                        </div>
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                          <span className="flex items-center gap-1.5">
-                            <Mail className="w-3.5 h-3.5" />
-                            {sub.email}
-                          </span>
-                          {sub.phone && (
+                {submissions.map((sub, i) => (
+                  <Reveal key={sub.id} delay={i * 80}>
+                    <div
+                      key={sub.id}
+                      className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-300"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <User className="w-4 h-4 text-teal-500" />
+                            <h3 className="font-semibold text-gray-900">
+                              {sub.name}
+                            </h3>
+                          </div>
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
                             <span className="flex items-center gap-1.5">
-                              <Phone className="w-3.5 h-3.5" />
-                              {sub.phone}
+                              <Mail className="w-3.5 h-3.5" />
+                              {sub.email}
                             </span>
-                          )}
-                          <span className="text-xs text-gray-400">
-                            {new Date(sub.created_at).toLocaleDateString(
-                              undefined,
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
+                            {sub.phone && (
+                              <span className="flex items-center gap-1.5">
+                                <Phone className="w-3.5 h-3.5" />
+                                {sub.phone}
+                              </span>
                             )}
-                          </span>
+                            <span className="text-xs text-gray-400">
+                              {new Date(sub.created_at).toLocaleDateString(
+                                undefined,
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                },
+                              )}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed">
+                            {sub.message}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed">
-                          {sub.message}
-                        </p>
+                        <button
+                          onClick={() => handleDeleteSubmission(sub.id)}
+                          className="shrink-0 inline-flex items-center justify-center text-red-600 bg-red-50 p-2 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => handleDeleteSubmission(sub.id)}
-                        className="shrink-0 inline-flex items-center justify-center text-red-600 bg-red-50 p-2 rounded-lg hover:bg-red-100 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
             )}
@@ -523,11 +528,11 @@ function DoctorModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

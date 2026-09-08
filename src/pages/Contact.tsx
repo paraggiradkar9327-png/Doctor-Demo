@@ -11,6 +11,7 @@ import {
   User,
   MessageSquare,
 } from "lucide-react";
+import Reveal from "@/components/Reveal";
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -58,15 +59,18 @@ export default function Contact() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative py-24 bg-gradient-to-br from-teal-700 via-cyan-700 to-teal-800 overflow-hidden">
+      <section className="relative py-24 bg-linear-to-br from-teal-700 via-cyan-700 to-teal-800 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-80 h-80 bg-white rounded-full blur-3xl" />
+          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-80 h-80 bg-white rounded-full blur-3xl animate-float" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 animate-fade-in-up">
             Contact Us
           </h1>
-          <p className="text-teal-50 text-lg max-w-2xl mx-auto">
+          <p
+            className="text-teal-50 text-lg max-w-2xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: "0.15s" }}
+          >
             Have a question or want to book an appointment? We'd love to hear
             from you.
           </p>
@@ -80,18 +84,17 @@ export default function Contact() {
             {contactInfo.map((info, i) => {
               const Icon = info.icon;
               return (
-                <div
-                  key={i}
-                  className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-teal-100"
-                >
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 mb-4">
-                    <Icon className="w-7 h-7 text-white" />
+                <Reveal key={i} delay={i * 120}>
+                  <div className="bg-linear-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-2 border border-teal-100 h-full">
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-br from-teal-500 to-cyan-600 mb-4 transition-transform duration-300 hover:scale-110">
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {info.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">{info.value}</p>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {info.title}
-                  </h3>
-                  <p className="text-sm text-gray-600">{info.value}</p>
-                </div>
+                </Reveal>
               );
             })}
           </div>
@@ -101,134 +104,139 @@ export default function Contact() {
       {/* Contact Form */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-            <div className="bg-gradient-to-r from-teal-600 to-cyan-700 px-8 py-6">
-              <h2 className="text-2xl font-bold text-white">
-                Send Us a Message
-              </h2>
-              <p className="text-teal-50 text-sm mt-1">
-                Fill out the form below and we'll get back to you as soon as
-                possible.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-8 space-y-5">
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    required
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="John Doe"
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
-                  />
-                </div>
+          <Reveal>
+            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="bg-linear-to-r from-teal-600 to-cyan-700 px-8 py-6">
+                <h2 className="text-2xl font-bold text-white">
+                  Send Us a Message
+                </h2>
+                <p className="text-teal-50 text-sm mt-1">
+                  Fill out the form below and we'll get back to you as soon as
+                  possible.
+                </p>
               </div>
 
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
-                    placeholder="john@example.com"
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
-                  />
+              <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      required
+                      value={form.name}
+                      onChange={(e) =>
+                        setForm({ ...form, name: e.target.value })
+                      }
+                      placeholder="John Doe"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all duration-200 text-gray-900"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Phone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Phone Number <span className="text-gray-400">(optional)</span>
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) =>
-                      setForm({ ...form, phone: e.target.value })
-                    }
-                    placeholder="+91 123-456-7890"
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900"
-                  />
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="email"
+                      required
+                      value={form.email}
+                      onChange={(e) =>
+                        setForm({ ...form, email: e.target.value })
+                      }
+                      placeholder="john@example.com"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all duration-200 text-gray-900"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Message */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Message
-                </label>
-                <div className="relative">
-                  <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <textarea
-                    required
-                    rows={4}
-                    value={form.message}
-                    onChange={(e) =>
-                      setForm({ ...form, message: e.target.value })
-                    }
-                    placeholder="How can we help you?"
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all text-gray-900 resize-none"
-                  />
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Phone Number{" "}
+                    <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={form.phone}
+                      onChange={(e) =>
+                        setForm({ ...form, phone: e.target.value })
+                      }
+                      placeholder="+91 123-456-7890"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all duration-200 text-gray-900"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Status messages */}
-              {status === "success" && (
-                <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
-                  <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
-                  <p className="text-sm text-green-700 font-medium">
-                    Your message has been sent successfully! We'll get back to
-                    you soon.
-                  </p>
+                {/* Message */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Message
+                  </label>
+                  <div className="relative">
+                    <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <textarea
+                      required
+                      rows={4}
+                      value={form.message}
+                      onChange={(e) =>
+                        setForm({ ...form, message: e.target.value })
+                      }
+                      placeholder="How can we help you?"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition-all duration-200 text-gray-900 resize-none"
+                    />
+                  </div>
                 </div>
-              )}
-              {status === "error" && (
-                <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
-                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-                  <p className="text-sm text-red-700 font-medium">
-                    Something went wrong. Please try again later.
-                  </p>
-                </div>
-              )}
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={status === "submitting"}
-                className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {status === "submitting" ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    Send Message
-                  </>
+                {/* Status messages */}
+                {status === "success" && (
+                  <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4 animate-fade-in-up">
+                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+                    <p className="text-sm text-green-700 font-medium">
+                      Your message has been sent successfully! We'll get back to
+                      you soon.
+                    </p>
+                  </div>
                 )}
-              </button>
-            </form>
-          </div>
+                {status === "error" && (
+                  <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4 animate-fade-in-up">
+                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+                    <p className="text-sm text-red-700 font-medium">
+                      Something went wrong. Please try again later.
+                    </p>
+                  </div>
+                )}
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-linear-to-r from-teal-500 to-cyan-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {status === "submitting" ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </Reveal>
         </div>
       </section>
     </div>

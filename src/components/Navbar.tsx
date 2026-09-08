@@ -108,7 +108,7 @@ export default function Navbar() {
 
         {/* Mobile nav */}
         {isOpen && (
-          <div className="md:hidden mt-3 pb-3 space-y-1 border-t border-gray-100 pt-3">
+          <div className="md:hidden mt-3 pb-3 space-y-1 border-t border-gray-100 pt-3 animate-fade-in-down">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
